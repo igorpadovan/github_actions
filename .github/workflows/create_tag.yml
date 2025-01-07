@@ -23,9 +23,9 @@ jobs:
         run: |
           git config --global user.email "seadoc-application-githubaction@gmail.com"
           git config --global user.name "GitHub Actions"
-          env:
-            GITHUB_TOKEN: ${{ vars.API_TOKEN_GITHUB }}
-            
+        env:
+          GITHUB_TOKEN: ${{ vars.API_TOKEN_GITHUB }}
+
       - name: Atualizar branch HOMOLOG
         run: |
           git fetch --all
