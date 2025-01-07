@@ -9,7 +9,7 @@ on:
       - homolog
 
 jobs:
-  create_release_branch:
+  create_tag:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,6 +19,13 @@ jobs:
           ref: dev
           fetch-depth: 0  # Certifique-se de buscar todas as informações do histórico do git
 
+      - name: Configurar ambiente Git
+        run: |
+          git config --global user.email "seadoc-application-githubaction@gmail.com"
+          git config --global user.name "GitHub Actions"
+          env:
+            GITHUB_TOKEN: ${{ vars.API_TOKEN_GITHUB }}
+            
       - name: Atualizar branch HOMOLOG
         run: |
           git fetch --all
@@ -26,13 +33,6 @@ jobs:
           git reset --hard origin/dev
           git push origin homolog --force
       
-      - name: Configurar ambiente Git
-        run: |
-          git config --global user.email "seadoc-application-githubaction@gmail.com"
-          git config --global user.name "GitHub Actions"
-        env:
-          GITHUB_TOKEN: ${{ vars.API_TOKEN_GITHUB }}
-
       - name: Bump tag version
         id: bump_tag_version
         run: |
