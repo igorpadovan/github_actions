@@ -37,9 +37,9 @@ jobs:
         id: bump_tag_version
         run: |
             # Extract the current version from the latest release tag
-            TAG=$(curl -u "${{ secrets.API_USERNAME_GITHUB }}:${{ vars.API_TOKEN_GITHUB }}" -s "https://api.github.com/repos/bradoctech/seadoc-application/tags" | jq -r '.[0].name')
+            TAG=$(curl -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -s "https://api.github.com/repos/bradoctech/seadoc-application/tags" | jq -r '.[0].name')
             echo "Última versão: ${TAG}"
-            #echo "TAG=${TAG}" >> $GITHUB_ENV
+            echo "TAG=${TAG}" >> $GITHUB_ENV
   
             current_tag=${TAG#v}
 
@@ -56,6 +56,9 @@ jobs:
 
             echo "Nova versão para release: ${new_tag_version}"
             echo "::set-output name=new_tag_version::${new_tag_version}"
+        env:
+            GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+            GITHUB_USERNAME: ${{ vars.API_USERNAME_GITHUB }}
             
       - name: Criar Nova TAG
         run: |
