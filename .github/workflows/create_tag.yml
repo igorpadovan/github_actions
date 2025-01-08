@@ -6,7 +6,6 @@ on:
       - closed
     branches: 
       - dev
-      - homolog
 
 jobs:
   create_tag:
@@ -49,10 +48,10 @@ jobs:
             patch_tag=$(echo $current_tag | cut -d. -f3)
 
             # Incrementar o número do patch
-            new_patch_tag=$((patch_tag + 1))
+            new_minor_tag=$((minor_tag + 1))
 
             # Construir a nova versão com base no SemVer
-            new_tag_version="v${major_tag}.${minor_tag}.${new_patch_tag}"
+            new_tag_version="v${major_tag}.${new_minor_tag}.${patch_tag}"
 
             echo "Nova versão para release: ${new_tag_version}"
             echo "::set-output name=new_tag_version::${new_tag_version}"
@@ -64,10 +63,8 @@ jobs:
         run: |
               NEW_TAG="${{ steps.bump_tag_version.outputs.new_tag_version }}"
 
-              # Defina a branch de origem e destino
-              DEV_BRANCH="origin/dev"
-
-              git switch "${DEV_BRANCH}"
+              git fetch --all
+              git switch dev
               git pull
               
               git tag "${NEW_TAG}"
