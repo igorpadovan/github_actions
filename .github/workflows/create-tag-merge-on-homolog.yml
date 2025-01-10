@@ -28,7 +28,7 @@ jobs:
       - name: Bump patchc tag version
         id: bump_patch_tag_version
         run: |
-            TAG=$(curl -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -s "https://api.github.com/repos/bradoctech/seadoc-application/tags" | jq -r '.[0].name')
+            TAG=$(curl -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -s "https://api.github.com/repos/igorpadovan/github_actions/tags" | jq -r '.[0].name')
             echo "Última versão: ${TAG}"
             echo "TAG=${TAG}" >> ${GITHUB_ENV}
   
