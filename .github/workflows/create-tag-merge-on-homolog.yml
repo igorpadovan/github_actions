@@ -28,22 +28,18 @@ jobs:
       - name: Bump patchc tag version
         id: bump_patch_tag_version
         run: |
-            # Extract the current version from the latest release tag
             TAG=$(curl -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -s "https://api.github.com/repos/bradoctech/seadoc-application/tags" | jq -r '.[0].name')
             echo "Última versão: ${TAG}"
             echo "TAG=${TAG}" >> ${GITHUB_ENV}
   
             current_tag=${TAG#v}
 
-            # Separar a versão em partes (major, minor e patch)
             major_tag=$(echo "$current_tag" | cut -d. -f1)
             minor_tag=$(echo "$current_tag" | cut -d. -f2)
             patch_tag=$(echo $current_tag | cut -d. -f3)
 
-            # Incrementar o número do patch
             new_patch_tag=$((patch_tag + 1))
 
-            # Construir a nova versão com base no SemVer
             new_tag_version="v${major_tag}.${minor_tag}.${new_patch_tag}"
 
             echo "Nova versão para release: ${new_tag_version}"
