@@ -63,8 +63,7 @@ jobs:
 
       - name: Atualizar dev com alteracoes da homolog
         run: |
-            git fetch --all
             git switch dev
             git pull
-            git merge homolog
+            git merge origin/homolog
             git push origin dev
