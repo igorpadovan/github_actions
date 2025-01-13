@@ -60,3 +60,11 @@ jobs:
              
               echo "Push feito em '${NEW_TAG}'"
               git push origin ${NEW_TAG}
+
+      - name: Atualizar dev com alteracoes da homolog
+        run: |
+            git fetch --all
+            git switch dev
+            git pull
+            git merge homolog
+            git push origin dev
