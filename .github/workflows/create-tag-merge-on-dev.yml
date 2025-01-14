@@ -1,0 +1,73 @@
+name: Create TAG   
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches: 
+      - dev
+
+jobs:
+  create_tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Código 
+        uses: actions/checkout@v2
+        with:
+          ref: dev
+          fetch-depth: 0  # Certifique-se de buscar todas as informações do histórico do git
+
+      - name: Configurar ambiente Git
+        run: |
+          git config --global user.email "seadoc-application-githubaction@gmail.com"
+          git config --global user.name "GitHub Actions"
+        env:
+          GITHUB_TOKEN: ${{ vars.API_TOKEN_GITHUB }}
+
+      - name: Atualizar branch HOMOLOG
+        run: |
+          git fetch --all
+          git checkout homolog
+          git reset --hard origin/dev
+          git push origin homolog --force
+      
+      - name: Bump tag version
+        id: bump_tag_version
+        run: |
+            # Extract the current version from the latest release tag
+            TAG=$(curl -u "${GITHUB_USERNAME}:${GITHUB_TOKEN}" -s "https://api.github.com/repos/igorpadovan/github_actions/tags" | jq -r '.[0].name')
+            echo "Última versão: ${TAG}"
+            echo "TAG=${TAG}" >> ${GITHUB_ENV}
+  
+            current_tag=${TAG#v}
+
+            # Separar a versão em partes (major, minor e patch)
+            major_tag=$(echo "$current_tag" | cut -d. -f1)
+            minor_tag=$(echo "$current_tag" | cut -d. -f2)
+            patch_tag=$(echo $current_tag | cut -d. -f3)
+
+            # Incrementar o número do patch
+            new_minor_tag=$((minor_tag + 1))
+
+            # Construir a nova versão com base no SemVer
+            new_tag_version="v${major_tag}.${new_minor_tag}.${patch_tag}"
+
+            echo "Nova versão para release: ${new_tag_version}"
+            echo "::set-output name=new_tag_version::${new_tag_version}"
+        env:
+            GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+            GITHUB_USERNAME: ${{ vars.API_USERNAME_GITHUB }}
+            
+      - name: Criar Nova TAG
+        run: |
+              NEW_TAG="${{ steps.bump_tag_version.outputs.new_tag_version }}"
+
+              git fetch --all
+              git switch dev
+              git pull
+              
+              git tag "${NEW_TAG}"
+             
+              echo "Push feito em '${NEW_TAG}'"
+              git push origin ${NEW_TAG}
