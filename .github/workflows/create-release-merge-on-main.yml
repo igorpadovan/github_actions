@@ -33,7 +33,7 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
             new_release="${{ steps.get_lastest_tag.outputs.tag_version }}"
-            gh release create "$tag" \
+            gh release create "$new_release" \
                 --repo="$GITHUB_REPOSITORY" \
                 --title="${GITHUB_REPOSITORY#*/} ${new_release#v}" \
                 --generate-notes
