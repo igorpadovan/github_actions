@@ -1,25 +1,39 @@
-name: Create Release   
+name: Create release
 
 on:
-    pull_request:
-        types:
-        - closed
-        branches: 
-        - main
+  pull_request:
+    types:
+      - closed
+    branches: 
+      - main
+
+permissions:
+  contents: write
+
 jobs:
-    build:
-      name: Create Release
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v2
-        - name: Create Release
-          id: create_release
-          uses: actions/create-release@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-          with:
-            tag_name: ${{ github.ref }}
-            release_name: Release ${{ github.ref }}
-            draft: false
-            prerelease: false
+  release:
+    name: Release pushed tag
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Get latest tag
+        id: get_lastest_tag
+        run: |
+            # Extract the current version from the latest release tag
+            TAG=$(curl -u "${GITHUB_TOKEN}" -s "https://api.github.com/repos/igorpadovan/github_actions/tags" | jq -r '.[0].name')
+            echo "Última versão: ${TAG}"
+            echo "TAG=${TAG}" >> ${GITHUB_ENV}
+  
+            current_tag=${TAG#v}
+            echo "::set-output name=tag_version::${TAG}"
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            
+      - name: Create release
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+            new_release="${{ steps.get_lastest_tag.outputs.tag_version }}"
+            gh release create "$tag" \
+                --repo="$GITHUB_REPOSITORY" \
+                --title="${GITHUB_REPOSITORY#*/} ${new_release#v}" \
+                --generate-notes
