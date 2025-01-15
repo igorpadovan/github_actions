@@ -1,0 +1,41 @@
+name: Create release
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches: 
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release pushed tag
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Get latest tag
+        id: get_lastest_tag
+        run: |
+            # Extract the current version from the latest release tag
+            TAG=$(curl -u "${GITHUB_TOKEN}" -s "https://api.github.com/repos/igorpadovan/github_actions/tags" | jq -r '.[0].name')
+            echo "Ultima versão: ${TAG}"
+            echo "TAG=${TAG}" >> ${GITHUB_ENV}
+  
+            current_tag=${TAG#v}
+            echo "::set-output name=tag_version::${TAG}"
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            
+      - name: Create release
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+            new_release="${{ steps.get_lastest_tag.outputs.tag_version }}"
+            gh release create "$new_release" \
+                --repo="$GITHUB_REPOSITORY" \
+                --title="${GITHUB_REPOSITORY#*/} ${new_release#v}" \
+                --generate-notes
