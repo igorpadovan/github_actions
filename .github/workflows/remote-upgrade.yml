@@ -1,19 +1,21 @@
 name: Deployment
 
 on:
-    pull_request:
-      types:
-        - closed
+  pull_request:
+    types:
+      - closed
 
 jobs:
   upgrade:
     if: ${{ github.event.pull_request.merged }}
     runs-on: ubuntu-latest
-    
+
+    environment: ${{ github.event.pull_request.base.ref }} # Dynamically set the environment based on the branch
+
     steps:
       - name: Echo environment
         run: |
-            echo "Current environment: ${{ github.environment.name }}"
+          echo "Current environment: ${{ github.environment }}"
 
       - name: Setup SSH Keys
         run: |
@@ -56,4 +58,4 @@ jobs:
 
       - name: Execute Remote Command
         run: |
-          ssh target "cd ${{ vars.APP_DIRECTORY }} && make upgrade_seadoc" 
+          ssh target "cd ${{ vars.APP_DIRECTORY }} && make upgrade_seadoc"
