@@ -9,9 +9,13 @@ jobs:
   upgrade:
     if: ${{ github.event.pull_request.merged }}
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    environment: ${{ github.event.pull_request.base.ref }}
     
     steps:
+      - name: Debug Environment
+        run: |
+          echo "Running in environment: ${{ github.job.environment.name }}"
+          echo "Target Host: ${{ vars.TARGET_HOST }}"
       - name: Setup SSH Keys
         run: |
           mkdir -p ~/.ssh
