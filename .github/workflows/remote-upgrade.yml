@@ -1,0 +1,56 @@
+name: Remote Server Upgrade
+
+on:
+    pull_request:
+      types:
+        - closed
+
+jobs:
+  upgrade:
+    if: ${{ github.event.pull_request.merged }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+      - name: Setup SSH Keys
+        run: |
+          mkdir -p ~/.ssh
+          
+          # Setup Target Server SSH key
+          echo "${{ secrets.TARGET_SSH_PRIVATE_KEY }}" > ~/.ssh/target_key
+          chmod 600 ~/.ssh/target_key
+          
+          # Create SSH config file
+          cat > ~/.ssh/config << EOF
+          Host target
+            HostName ${{ vars.TARGET_HOST }}
+            User ${{ vars.TARGET_USER }}
+            IdentityFile ~/.ssh/target_key
+            StrictHostKeyChecking no
+          EOF
+          
+          # If bridge host is configured, add bridge configuration
+          if [ ! -z "${{ vars.BRIDGE_HOST }}" ]; then
+            echo "${{ secrets.BRIDGE_SSH_PRIVATE_KEY }}" > ~/.ssh/bridge_key
+            chmod 600 ~/.ssh/bridge_key
+            
+            # Add bridge configuration
+            cat >> ~/.ssh/config << EOF
+          
+          Host bridge
+            HostName ${{ vars.BRIDGE_HOST }}
+            User ${{ vars.BRIDGE_USER }}
+            IdentityFile ~/.ssh/bridge_key
+            StrictHostKeyChecking no
+          
+          # Update target configuration to use bridge
+          Host target
+            ProxyCommand ssh -W %h:%p bridge
+          EOF
+          fi
+          
+          chmod 600 ~/.ssh/config
+
+      - name: Execute Remote Command
+        run: |
+          ssh target "cd ${{ vars.APP_DIRECTORY }} && make upgrade_seadoc" 
