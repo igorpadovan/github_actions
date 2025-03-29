@@ -1,4 +1,4 @@
-name: Server Upgrade
+name: Deployment
 
 on:
     pull_request:
@@ -9,7 +9,6 @@ jobs:
   upgrade:
     if: ${{ github.event.pull_request.merged }}
     runs-on: ubuntu-latest
-    environment: ${{ matrix.env }}
     
     steps:
       - name: Echo environment
