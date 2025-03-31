@@ -26,6 +26,7 @@ jobs:
           
           # Setup Target Server SSH key
           echo "${{ secrets.TARGET_SSH_PRIVATE_KEY }}" > ~/.ssh/target_key
+          echo "" >> ~/.ssh/target_key
           chmod 600 ~/.ssh/target_key
           
           # Create SSH config file
@@ -40,6 +41,7 @@ jobs:
           # If bridge host is configured, add bridge configuration
           if [ ! -z "${{ vars.BRIDGE_HOST }}" ]; then
             echo "${{ secrets.BRIDGE_SSH_PRIVATE_KEY }}" > ~/.ssh/bridge_key
+            echo "" >> ~/.ssh/bridge_key
             chmod 600 ~/.ssh/bridge_key
             
             # Add bridge configuration
