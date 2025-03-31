@@ -60,7 +60,7 @@ jobs:
       - name: Execute Remote Command
         run: |
           if [ ! -z "${{ vars.BRIDGE_HOST }}" ]; then
-            ssh ${{ vars.BRIDGE_HOST }} 'ssh target "cd ${{ vars.APP_DIRECTORY }} && make upgrade_seadoc"'
+            ssh bridge 'ssh ${{ vars.TARGET_HOST }} "cd ${{ vars.APP_DIRECTORY }} && make upgrade_seadoc"'
           else
             ssh target "cd ${{ vars.APP_DIRECTORY }} && make upgrade_seadoc"
           fi
