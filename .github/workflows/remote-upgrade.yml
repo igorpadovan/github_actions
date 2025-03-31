@@ -25,7 +25,7 @@ jobs:
         id: set_env
         run: echo "names=$(echo $NAMES | jq -c '[.[] | select(startswith("[${{ github.ref_name }}]"))]' -j)" >> $GITHUB_OUTPUT
         env:
-          NAMES: ${{ toJson(fromJson(steps.get_env.outputs.data).environments.*.name) }}
+          names: ${{ toJson(fromJson(steps.get_env.outputs.data).environments.*.name) }}
           
   upgrade:
     needs:
