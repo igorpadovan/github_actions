@@ -5,36 +5,13 @@ on:
     types:
       - closed
 
-jobs:
-  get-environments:
-    runs-on: ubuntu-latest
-    timeout-minutes: 1
-    permissions:
-      actions: read
-    outputs:
-      names: ${{ steps.set_env.outputs.names }}
-    steps:
-      - name: Get environments
-        uses: octokit/request-action@v2.3.0
-        id: get_env
-        with:
-          route: GET /repos/${{ github.repository }}/environments?per_page=100 # If we ever have >100 deployments, we'll need to paginate
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set output
-        id: set_env
-        run: echo "names=$(echo $NAMES | jq -c '[.[] | select(startswith("[${{ github.ref_name }}]"))]' -j)" >> $GITHUB_OUTPUT
-        env:
-          names: ${{ toJson(fromJson(steps.get_env.outputs.data).environments.*.name) }}
-          
+jobs:          
   upgrade:
-    needs:
-      - get-environments
     if: ${{ github.event.pull_request.merged }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: ${{ fromJson(needs.get-environments.outputs.names) }}
+        environment: ["PMVG Homolog"]
     environment:
       name: ${{ matrix.environment }}
 
