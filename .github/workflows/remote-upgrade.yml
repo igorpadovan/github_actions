@@ -50,10 +50,6 @@ jobs:
             User ${{ vars.BRIDGE_USER }}
             IdentityFile ~/.ssh/bridge_key
             StrictHostKeyChecking no
-          
-          # Update target configuration to use bridge
-          Host target
-            ProxyCommand ssh -W %h:%p bridge
           EOF
           fi
           
@@ -61,4 +57,4 @@ jobs:
 
       - name: Execute Remote Command
         run: |
-          ssh target "cd ${{ vars.APP_DIRECTORY }} && make upgrade_seadoc"
+          ssh bridge 'ssh target "cd ${{ vars.APP_DIRECTORY }};make upgrade_seadoc"'
