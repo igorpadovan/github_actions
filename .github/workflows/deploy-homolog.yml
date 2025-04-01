@@ -1,9 +1,12 @@
 name: Deployment
 
 on:
-  pull_request:
-    types:
-      - closed
+    pull_request:
+      types:
+        - closed
+      branches: 
+        - dev
+        - homolog  
 
 jobs:
   deploy:
