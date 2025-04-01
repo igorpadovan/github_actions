@@ -1,0 +1,40 @@
+name: Deployment
+
+on:
+    pull_request:
+      types:
+        - closed
+      branches: 
+        - main 
+
+jobs:
+  deploy:
+    if: ${{ github.event.pull_request.merged }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: ["PMVG Prod"]
+    environment:
+      name: ${{ matrix.environment }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Echo environment
+        run: |
+          echo "Current environment: ${{ matrix.environment }}"
+
+      - name: Setup SSH and Deploy
+        env:
+          TARGET_SSH_PRIVATE_KEY: ${{ secrets.TARGET_SSH_PRIVATE_KEY }}
+          TARGET_HOST: ${{ vars.TARGET_HOST }}
+          TARGET_USER: ${{ vars.TARGET_USER }}
+          TARGET_PORT: ${{ vars.TARGET_PORT }}
+          APP_DIRECTORY: ${{ vars.APP_DIRECTORY }}
+          BRIDGE_HOST: ${{ vars.BRIDGE_HOST }}
+          BRIDGE_USER: ${{ vars.BRIDGE_USER }}
+          BRIDGE_SSH_PRIVATE_KEY: ${{ secrets.BRIDGE_SSH_PRIVATE_KEY }}
+        run: |
+          chmod +x ${GITHUB_WORKSPACE}/.github/setup-ssh-and-deploy.sh
+          ${GITHUB_WORKSPACE}/.github/setup-ssh-and-deploy.sh
