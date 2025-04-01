@@ -31,5 +31,5 @@ jobs:
           BRIDGE_USER: ${{ vars.BRIDGE_USER }}
           BRIDGE_SSH_PRIVATE_KEY: ${{ secrets.BRIDGE_SSH_PRIVATE_KEY }}
         run: |
-          chmod +x ${GITHUB_WORKSPACE}/.github/workflows/scripts/setup-ssh-and-deploy.sh
-          ./${GITHUB_WORKSPACE}/.github/workflows/scripts/setup-ssh-and-deploy.sh
+          chmod +x ./.github/workflows/scripts/setup-ssh-and-deploy.sh
+          ./.github/workflows/scripts/setup-ssh-and-deploy.sh
