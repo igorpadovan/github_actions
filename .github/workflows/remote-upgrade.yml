@@ -6,7 +6,7 @@ on:
       - closed
 
 jobs:
-  upgrade:
+  deploy:
     if: ${{ github.event.pull_request.merged }}
     runs-on: ubuntu-latest
     strategy:
@@ -20,47 +20,16 @@ jobs:
         run: |
           echo "Current environment: ${{ matrix.environment }}}"
 
-      - name: Setup SSH Keys
+      - name: Setup SSH and Deploy
+        env:
+          TARGET_SSH_PRIVATE_KEY: ${{ secrets.TARGET_SSH_PRIVATE_KEY }}
+          TARGET_HOST: ${{ vars.TARGET_HOST }}
+          TARGET_USER: ${{ vars.TARGET_USER }}
+          TARGET_PORT: ${{ vars.TARGET_PORT }}
+          APP_DIRECTORY: ${{ vars.APP_DIRECTORY }}
+          BRIDGE_HOST: ${{ vars.BRIDGE_HOST }}
+          BRIDGE_USER: ${{ vars.BRIDGE_USER }}
+          BRIDGE_SSH_PRIVATE_KEY: ${{ secrets.BRIDGE_SSH_PRIVATE_KEY }}
         run: |
-          mkdir -p ~/.ssh
-          
-          # Setup Target Server SSH key
-          echo "${{ secrets.TARGET_SSH_PRIVATE_KEY }}" > ~/.ssh/target_key
-          echo "" >> ~/.ssh/target_key
-          chmod 600 ~/.ssh/target_key
-          
-          # Create SSH config file
-          cat > ~/.ssh/config << EOF
-          Host target
-            HostName ${{ vars.TARGET_HOST }}
-            User ${{ vars.TARGET_USER }}
-            IdentityFile ~/.ssh/target_key
-            StrictHostKeyChecking no
-          EOF
-          
-          # If bridge host is configured, add bridge configuration
-          if [ ! -z "${{ vars.BRIDGE_HOST }}" ]; then
-            echo "${{ secrets.BRIDGE_SSH_PRIVATE_KEY }}" > ~/.ssh/bridge_key
-            echo "" >> ~/.ssh/bridge_key
-            chmod 600 ~/.ssh/bridge_key
-            
-            # Add bridge configuration
-            cat >> ~/.ssh/config << EOF
-          
-          Host bridge
-            HostName ${{ vars.BRIDGE_HOST }}
-            User ${{ vars.BRIDGE_USER }}
-            IdentityFile ~/.ssh/bridge_key
-            StrictHostKeyChecking no
-          EOF
-          fi
-          
-          chmod 600 ~/.ssh/config
-
-      - name: Execute Remote Command
-        run: |
-          if [ ! -z "${{ vars.BRIDGE_HOST }}" ]; then
-            ssh bridge 'ssh ${{ vars.TARGET_HOST }} "cd ${{ vars.APP_DIRECTORY }} && make upgrade_seadoc"'
-          else
-            ssh target "cd ${{ vars.APP_DIRECTORY }} && make upgrade_seadoc"
-          fi
+          chmod +x scripts/setup-ssh-and-deploy.sh
+          ./scripts/setup-ssh-and-deploy.sh
