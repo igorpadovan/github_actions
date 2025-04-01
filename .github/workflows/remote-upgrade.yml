@@ -16,9 +16,12 @@ jobs:
       name: ${{ matrix.environment }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Echo environment
         run: |
-          echo "Current environment: ${{ matrix.environment }}}"
+          echo "Current environment: ${{ matrix.environment }}"
 
       - name: Setup SSH and Deploy
         env:
@@ -31,8 +34,5 @@ jobs:
           BRIDGE_USER: ${{ vars.BRIDGE_USER }}
           BRIDGE_SSH_PRIVATE_KEY: ${{ secrets.BRIDGE_SSH_PRIVATE_KEY }}
         run: |
-          pwd
-          ls -la
-          ls -la .github/
           chmod +x ${GITHUB_WORKSPACE}/.github/setup-ssh-and-deploy.sh
           ${GITHUB_WORKSPACE}/.github/setup-ssh-and-deploy.sh
